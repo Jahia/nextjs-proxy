@@ -1,0 +1,8 @@
+# default configuration - won't be overridden
+headless:
+  description: "Access Content for headless site"
+  auto_apply:
+    - origin: http://localhost:3000
+  grants:
+    - api:
+        include: graphql

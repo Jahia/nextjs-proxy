@@ -1,0 +1,9 @@
+{
+  "name": "jnt:page",
+  "fields": [
+    {
+      "name": "j:templateName",
+      "readOnly": true
+    }
+  ]
+}

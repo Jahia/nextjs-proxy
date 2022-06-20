@@ -1,0 +1,26 @@
+package org.jahia.se.modules.nextjsproxy.rules
+
+// list any import classes here.
+import org.jahia.services.content.rules.*
+import org.jahia.services.content.JCRContentUtils
+import org.slf4j.Logger
+
+expander rules.dsl
+
+// declare any global variables here
+global User user
+global Service service
+global Logger logger
+global JCRContentUtils jcrUtils
+
+# set a property when a node is created
+rule "set a property on virtualnode when the node is created"
+   when
+        A new node is created
+            - the node has the type jnt:virtualsite
+            - installed modules contains nextjs-proxy
+   then
+       Log "Start: Adding a property for this virtualsite " + node.getName()
+       Set the property j:defaultTemplateName of the node with the value "default"
+       Log "End: Adding a property for this virtualsite " + node.getName()
+end
