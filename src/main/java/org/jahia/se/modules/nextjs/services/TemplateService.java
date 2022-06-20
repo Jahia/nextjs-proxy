@@ -1,4 +1,4 @@
-package org.jahia.se.modules.headless.services;
+package org.jahia.se.modules.nextjs.services;
 
 import org.apache.http.client.methods.HttpGet;
 import org.osgi.service.component.annotations.Component;

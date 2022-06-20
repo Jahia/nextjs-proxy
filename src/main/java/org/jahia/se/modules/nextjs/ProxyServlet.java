@@ -1,4 +1,4 @@
-package org.jahia.se.modules.headless;
+package org.jahia.se.modules.nextjs;
 
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
@@ -40,7 +40,6 @@ import java.net.HttpCookie;
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * An HTTP reverse proxy/gateway servlet. It is designed to be extended for customization
@@ -74,17 +73,17 @@ public class ProxyServlet extends AbstractServletFilter {
     private static final String ATTR_HEADLESS_JCONTENT_COOKIE = "__jContent_preview_ctx";
     //TODO quid /cms/render/live/ ?
 
-    private static final String J_PROPS_HEADLESS_HOST = "j:headlessHost";
-    private static final String J_PROPS_HEADLESS_PREVIEW_PATH = "j:headlessPreviewURL";
-    private static final String J_PROPS_HEADLESS_PREVIEW_SECRET = "j:headlessPreviewSecret";
+    private static final String J_PROPS_HEADLESS_HOST = "j:nextjsHost";
+    private static final String J_PROPS_HEADLESS_PREVIEW_PATH = "/api/preview";//"j:nextjsPreviewURL";
+    private static final String J_PROPS_HEADLESS_PREVIEW_SECRET = "j:nextjsPreviewSecret";
     //    private static final String J_PROPS_HEADLESS_FRAMEWORK_URLS ="j:headlessFrameworkURLs";
-    private static final String J_PROPS_HEADLESS_MIXIN = "jmix:headlessSite";
+    private static final String J_PROPS_HEADLESS_MIXIN = "jmix:nextjsSite";
 
-    //    private static final String J_CONFIG_PROXY_PROPS_MAP= "headless_proxy.map";
-    private static final String J_CONFIG_PROXY_PROPS_FRAMEWORK_URI = "headless_proxy.frameworkURI";
+    //    private static final String J_CONFIG_PROXY_PROPS_MAP= "nextjs_proxy.map";
+    private static final String J_CONFIG_PROXY_PROPS_FRAMEWORK_URI = "nextjs_proxy.frameworkURI";
 
 
-    //this should be a params from headless part
+    //this should be a params from nextjs part
 //    private static final String J_COOKIE_SITE_NAME= "!Proxy!ServletName__prerender_bypass";
     private static final String NEXT_PREVIEW_COOKIE_NAME = "!Proxy!ServletName__prerender_bypass";
 
@@ -532,12 +531,13 @@ public class ProxyServlet extends AbstractServletFilter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String requestURI = httpServletRequest.getRequestURI();
         if (requestURI.startsWith(J_EDITFRAME_URI) || requestURI.startsWith(J_PREVIEW_URI)) {
-            List<Cookie> cookieNextPreviewList = Arrays.stream(httpServletRequest.getCookies())                // convert list to stream
+            List<Cookie> cookieNextPreviewList = Arrays.stream(httpServletRequest.getCookies()) // convert list to stream
                     .filter(cookie -> cookie.getName().equals(NEXT_PREVIEW_COOKIE_NAME))
                     .collect(Collectors.toList());
 
             if (cookieNextPreviewList.isEmpty())
-                return siteNode.getProperty(J_PROPS_HEADLESS_PREVIEW_PATH).getValue().getString();
+                return J_PROPS_HEADLESS_PREVIEW_PATH;
+//                return siteNode.getProperty(J_PROPS_HEADLESS_PREVIEW_PATH).getValue().getString();
         }
         return null;
     }

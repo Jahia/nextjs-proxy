@@ -1,4 +1,4 @@
-package org.jahia.se.modules.headless.graphql;
+package org.jahia.se.modules.nextjs.graphql;
 
 import org.jahia.modules.graphql.provider.dxm.DXGraphQLExtensionsProvider;
 import org.osgi.service.component.annotations.Component;

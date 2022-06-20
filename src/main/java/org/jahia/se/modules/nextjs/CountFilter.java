@@ -1,4 +1,4 @@
-package org.jahia.se.modules.headless;
+package org.jahia.se.modules.nextjs;
 
 import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;

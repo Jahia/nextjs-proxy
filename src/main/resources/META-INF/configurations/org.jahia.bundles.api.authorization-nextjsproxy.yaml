@@ -1,6 +1,6 @@
 # default configuration - won't be overridden
-headless:
-  description: "Access Content for headless site"
+nextjs:
+  description: "Access Content for nextjs site"
   auto_apply:
     - origin: http://localhost:3000
   grants:

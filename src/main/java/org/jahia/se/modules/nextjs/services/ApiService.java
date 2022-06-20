@@ -1,4 +1,4 @@
-package org.jahia.se.modules.headless.services;
+package org.jahia.se.modules.nextjs.services;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;

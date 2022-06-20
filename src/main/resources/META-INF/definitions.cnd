@@ -2,14 +2,14 @@
 <jmix = 'http://www.jahia.org/jahia/mix/1.0'>
 <j = 'http://www.jahia.org/jahia/1.0'>
 
-[jmix:headlessPageTemplate] mixin
+[jmix:nextjsPageTemplate] mixin
  extends = jnt:page
- - j:templateNameHeadless (string,choicelist[headlessTemplateNameInitializer]) nofulltext
+ - j:templateNameNextjs (string,choicelist[nextjsTemplateNameInitializer]) nofulltext
 
- [jmix:headlessSite] mixin
+ [jmix:nextjsSite] mixin
  extends = jnt:virtualsite
-  - j:headlessHost (string) nofulltext
-  - j:headlessPreviewURL (string) nofulltext
-  - j:headlessPreviewSecret (string) nofulltext
-  - j:headlessTemplateListPath (string) nofulltext
-//  - j:headlessFrameworkURLs (string) multiple nofulltext
+  - j:nextjsHost (string) nofulltext
+//  - j:nextjsPreviewURL (string) nofulltext
+  - j:nextjsPreviewSecret (string) nofulltext
+//  - j:nextjsTemplateListPath (string) nofulltext
+//  - j:nextjsFrameworkURLs (string) multiple nofulltext

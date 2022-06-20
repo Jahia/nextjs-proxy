@@ -1,8 +1,8 @@
-package org.jahia.se.modules.headless.initializers;
+package org.jahia.se.modules.nextjs.initializers;
 
 import org.apache.http.client.utils.URIBuilder;
-import org.jahia.se.modules.headless.services.Template;
-import org.jahia.se.modules.headless.services.TemplateService;
+import org.jahia.se.modules.nextjs.services.Template;
+import org.jahia.se.modules.nextjs.services.TemplateService;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
@@ -28,10 +28,11 @@ import java.util.stream.Stream;
 public class TemplateNameInitializer implements ModuleChoiceListInitializer{
     private static final Logger logger = LoggerFactory.getLogger(TemplateNameInitializer.class);
 
+    private static final String endpointPath = "/api/jahia/templates";
     /**
      * Choicelist initializer key
      */
-    private static final String INITIALIZER_KEY = "headlessTemplateNameInitializer";
+    private static final String INITIALIZER_KEY = "nextjsTemplateNameInitializer";
     private String key;
 
 
@@ -76,19 +77,19 @@ public class TemplateNameInitializer implements ModuleChoiceListInitializer{
 
             JCRSiteNode siteNode = node.getResolveSite();
 
-            String endpointHost  = siteNode.getProperty("j:headlessHost").getValue().toString();
-            String endpointPath  = siteNode.getProperty("j:headlessTemplateListPath").getValue().toString();
-            String endpointSecret  = siteNode.getProperty("j:headlessPreviewSecret").getValue().toString();
+            String endpointHost  = siteNode.getProperty("j:nextjsHost").getValue().toString();
+//            String endpointPath  = siteNode.getProperty("j:nextjsTemplateListPath").getValue().toString();
+            String endpointSecret  = siteNode.getProperty("j:nextjsPreviewSecret").getValue().toString();
 
             if(endpointHost == null || endpointHost.length() == 0){
-                logger.error("*** Headless frontend server url not configured ***");
+                logger.error("*** Nextjs frontend server url not configured ***");
                 return choiceListValues;
             }
 
-            if(endpointPath == null || endpointPath.length() == 0){
-                logger.error("*** Headless Template list service API path not configured ***");
-                return choiceListValues;
-            }
+//            if(endpointPath == null || endpointPath.length() == 0){
+//                logger.error("*** Nextjs Template list service API path not configured ***");
+//                return choiceListValues;
+//            }
 
             endpoint.append(endpointHost).append(endpointPath);
             URIBuilder builder = new URIBuilder(endpoint.toString());
