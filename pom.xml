@@ -10,7 +10,6 @@
         <groupId>org.jahia.modules</groupId>
         <version>8.1.0.0</version>
     </parent>
-    <groupId>org.jahia.se.modules</groupId>
     <artifactId>nextjs-proxy</artifactId>
     <name>Jahia proxy for nextjs</name>
     <version>0.0.1.alpha-SNAPSHOT</version>
@@ -24,7 +23,7 @@
     </scm>
 
     <properties>
-        <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
+        <jahia-module-signature>MCwCFAyRQVoidJ5Ah41tNt1KA78dvhCcAhQDPeyG/ObiWpORCmiWcuRm1MVkLA==</jahia-module-signature>
     </properties>
 
     <dependencies>
