@@ -23,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,6 @@ import java.util.stream.Collectors;
 @Component(immediate = true, service = AbstractServletFilter.class)
 public class ProxyServlet extends AbstractServletFilter {
     private static final Logger logger = LoggerFactory.getLogger(ProxyServlet.class);
-    //    private Map<String, String> proxyMap;
     private List<String> proxyFrameworkURI;
     private JahiaSitesService jahiaSitesService;
     private static final String J_EDITFRAME_URI = "/cms/editframe/default";
@@ -71,28 +71,12 @@ public class ProxyServlet extends AbstractServletFilter {
     private static final String ATTR_HEADLESS_PREVIEW_URI = "previewUri";
     private static final String ATTR_HEADLESS_PREVIEW_SECRET = "previewSecret";
     private static final String ATTR_HEADLESS_JCONTENT_COOKIE = "__jContent_preview_ctx";
-    //TODO quid /cms/render/live/ ?
-
     private static final String J_PROPS_HEADLESS_HOST = "j:nextjsHost";
-    private static final String J_PROPS_HEADLESS_PREVIEW_PATH = "/api/preview";//"j:nextjsPreviewURL";
+    private static final String J_PROPS_HEADLESS_PREVIEW_PATH = "/api/preview";
     private static final String J_PROPS_HEADLESS_PREVIEW_SECRET = "j:nextjsPreviewSecret";
-    //    private static final String J_PROPS_HEADLESS_FRAMEWORK_URLS ="j:headlessFrameworkURLs";
     private static final String J_PROPS_HEADLESS_MIXIN = "jmix:nextjsSite";
-
-    //    private static final String J_CONFIG_PROXY_PROPS_MAP= "nextjs_proxy.map";
     private static final String J_CONFIG_PROXY_PROPS_FRAMEWORK_URI = "nextjs_proxy.frameworkURI";
-
-
-    //this should be a params from nextjs part
-//    private static final String J_COOKIE_SITE_NAME= "!Proxy!ServletName__prerender_bypass";
     private static final String NEXT_PREVIEW_COOKIE_NAME = "!Proxy!ServletName__prerender_bypass";
-
-
-    @Reference
-    public void setJahiaSitesService(JahiaSitesService jahiaSitesService) {
-        this.jahiaSitesService = jahiaSitesService;
-    }
-    /* INIT PARAMETER NAME CONSTANTS */
 
     /**
      * A boolean parameter name to enable logging of input and target URLs to the servlet log.
@@ -149,18 +133,12 @@ public class ProxyServlet extends AbstractServletFilter {
      */
     public static final String P_HANDLECOMPRESSION = "handleCompression";
 
-    /**
-     * The parameter name for the target (destination) URI to proxy to.
-     */
-    public static final String P_TARGET_URI = "targetUri";
-
     protected static final String ATTR_TARGET_URI =
             ProxyServlet.class.getSimpleName() + ".targetUri";
     protected static final String ATTR_TARGET_HOST =
             ProxyServlet.class.getSimpleName() + ".targetHost";
 
     /* MISC */
-
     protected boolean doLog = false;
     protected boolean doForwardIP = true;
     /**
@@ -176,16 +154,6 @@ public class ProxyServlet extends AbstractServletFilter {
     protected int readTimeout = -1;
     protected int connectionRequestTimeout = -1;
     protected int maxConnections = -1;
-
-    //These next 3 are cached here, and should only be referred to in initialization logic. See the
-    // ATTR_* parameters.
-    /**
-     * From the configured parameter "targetUri".
-     */
-    protected String targetUri;
-    protected URI targetUriObj;//new URI(targetUri)
-    protected HttpHost targetHost;//URIUtils.extractHost(targetUriObj);
-
     private HttpClient proxyClient;
 
     protected String getTargetUri(HttpServletRequest servletRequest) {
@@ -200,86 +168,95 @@ public class ProxyServlet extends AbstractServletFilter {
      * Reads a configuration parameter. By default it reads servlet init parameters but
      * it can be overridden.
      */
-    protected String getConfigParam(String key) {
+    protected String getConfigParam(Map<String, ?> configuration, String key) {
+        if (configuration.containsKey(key) && configuration.get(key) != null) {
+            return configuration.get(key).toString();
+        }
         return null;
+    }
+
+    @Reference
+    public void setJahiaSitesService(JahiaSitesService jahiaSitesService) {
+        this.jahiaSitesService = jahiaSitesService;
     }
 
     @Activate
     public void activate(Map<String, ?> configuration) {
         logger.info("Started ProxyServlet filter from headless templatesSet with hot deploy...");
-//        String proxyPropsMap = (String) configuration.get(J_CONFIG_PROXY_PROPS_MAP);
         String proxyPropsFmkURI = (String) configuration.get(J_CONFIG_PROXY_PROPS_FRAMEWORK_URI);
-//
-//        this.proxyMap = Splitter.on(' ').withKeyValueSeparator(',').split(proxyPropsMap);
         this.proxyFrameworkURI = Arrays.stream(proxyPropsFmkURI.split(" ")).collect(Collectors.toList());
-        setMatchAllUrls(true);
-    }
+        List<String> filters = proxyFrameworkURI.stream().map(s -> s.endsWith("/") ? s + "*" : s + "/*").collect(Collectors.toCollection(ArrayList::new));
+        filters.add("/cms/edit/*");
+        filters.add("/cms/editframe/*");
+        filters.add("/cms/render/default/*");
+        setUrlPatterns(filters.toArray(new String[0]));
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-//        setMatchAllUrls(true);
-        init();
-    }
-
-    public void init() throws ServletException {
-        String doLogStr = getConfigParam(P_LOG);
+        String doLogStr = getConfigParam(configuration, P_LOG);
         if (doLogStr != null) {
             this.doLog = Boolean.parseBoolean(doLogStr);
         }
 
-        String doForwardIPString = getConfigParam(P_FORWARDEDFOR);
+        String doForwardIPString = getConfigParam(configuration, P_FORWARDEDFOR);
         if (doForwardIPString != null) {
             this.doForwardIP = Boolean.parseBoolean(doForwardIPString);
         }
 
-        String preserveHostString = getConfigParam(P_PRESERVEHOST);
+        String preserveHostString = getConfigParam(configuration, P_PRESERVEHOST);
         if (preserveHostString != null) {
             this.doPreserveHost = Boolean.parseBoolean(preserveHostString);
         }
 
-        String preserveCookiesString = getConfigParam(P_PRESERVECOOKIES);
+        String preserveCookiesString = getConfigParam(configuration, P_PRESERVECOOKIES);
         if (preserveCookiesString != null) {
             this.doPreserveCookies = Boolean.parseBoolean(preserveCookiesString);
         }
 
-        String handleRedirectsString = getConfigParam(P_HANDLEREDIRECTS);
+        String handleRedirectsString = getConfigParam(configuration, P_HANDLEREDIRECTS);
         if (handleRedirectsString != null) {
             this.doHandleRedirects = Boolean.parseBoolean(handleRedirectsString);
         }
 
-        String connectTimeoutString = getConfigParam(P_CONNECTTIMEOUT);
+        String connectTimeoutString = getConfigParam(configuration, P_CONNECTTIMEOUT);
         if (connectTimeoutString != null) {
             this.connectTimeout = Integer.parseInt(connectTimeoutString);
         }
 
-        String readTimeoutString = getConfigParam(P_READTIMEOUT);
+        String readTimeoutString = getConfigParam(configuration, P_READTIMEOUT);
         if (readTimeoutString != null) {
             this.readTimeout = Integer.parseInt(readTimeoutString);
         }
 
-        String connectionRequestTimeout = getConfigParam(P_CONNECTIONREQUESTTIMEOUT);
+        String connectionRequestTimeout = getConfigParam(configuration, P_CONNECTIONREQUESTTIMEOUT);
         if (connectionRequestTimeout != null) {
             this.connectionRequestTimeout = Integer.parseInt(connectionRequestTimeout);
         }
 
-        String maxConnections = getConfigParam(P_MAXCONNECTIONS);
+        String maxConnections = getConfigParam(configuration, P_MAXCONNECTIONS);
         if (maxConnections != null) {
             this.maxConnections = Integer.parseInt(maxConnections);
         }
 
-        String useSystemPropertiesString = getConfigParam(P_USESYSTEMPROPERTIES);
+        String useSystemPropertiesString = getConfigParam(configuration, P_USESYSTEMPROPERTIES);
         if (useSystemPropertiesString != null) {
             this.useSystemProperties = Boolean.parseBoolean(useSystemPropertiesString);
         }
 
-        String doHandleCompression = getConfigParam(P_HANDLECOMPRESSION);
+        String doHandleCompression = getConfigParam(configuration, P_HANDLECOMPRESSION);
         if (doHandleCompression != null) {
             this.doHandleCompression = Boolean.parseBoolean(doHandleCompression);
         }
 
-//        initTarget();//sets target*
-
         proxyClient = createHttpClient();
+    }
+
+    @Deactivate
+    public void deactivate() {
+        destroy();
+    }
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        // Do nothing
     }
 
     /**
@@ -308,21 +285,6 @@ public class ProxyServlet extends AbstractServletFilter {
                 .setSoTimeout(readTimeout)
                 .build();
     }
-
-//    protected void initTarget() throws ServletException {
-////        targetUri = "http://host.docker.internal:3000" ; //getConfigParam(P_TARGET_URI);
-//        targetUri = "http://localhost:3000" ; //getConfigParam(P_TARGET_URI);
-//        if (targetUri == null)
-//            throw new ServletException(P_TARGET_URI+" is required.");
-//        //test it's valid
-//        try {
-//            targetUriObj = new URI(targetUri);
-//        } catch (Exception e) {
-//            throw new ServletException("Trying to process targetUri init parameter: "+e,e);
-//        }
-//        targetHost = URIUtils.extractHost(targetUriObj);
-//    }
-
 
     /**
      * Called from {@link }.
@@ -383,7 +345,7 @@ public class ProxyServlet extends AbstractServletFilter {
             try {
                 ((Closeable) proxyClient).close();
             } catch (IOException e) {
-//                log("While destroying servlet, shutting down HttpClient: "+e, e);
+                logger.warn("While destroying servlet, shutting down HttpClient: "+e, e);
             }
         } else {
             //Older releases require we do this:
@@ -415,9 +377,6 @@ public class ProxyServlet extends AbstractServletFilter {
                     httpServletRequest.setAttribute(ATTR_HEADLESS_PREVIEW_URI, getTargetPreviewPath(siteNode, request));
                     httpServletRequest.setAttribute(ATTR_HEADLESS_PREVIEW_SECRET, getTargetPreviewSecret(siteNode));
 
-                    //note used anymore
-//                    String cookies = httpServletRequest.getHeader(org.apache.http.cookie.SM.COOKIE);
-
                     JSONObject jContentHeaderJSON = new JSONObject();
                     jContentHeaderJSON.put("locale", siteInfo.get("locale"));
                     if (requestURI.startsWith(J_EDITFRAME_URI)) {
@@ -428,23 +387,21 @@ public class ProxyServlet extends AbstractServletFilter {
 
                     String reqTargetUri = getTargetHost(siteNode);
                     if (reqTargetUri == null)
-                        throw new ServletException(P_TARGET_URI + " is required.");
+                        throw new ServletException(J_PROPS_HEADLESS_HOST + " is required on site.");
+
                     //test it's valid
                     try {
-                        targetUriObj = new URI(reqTargetUri);
+                        httpServletRequest.setAttribute(ATTR_TARGET_HOST, URIUtils.extractHost(new URI(reqTargetUri)));
                     } catch (Exception e) {
                         throw new ServletException("Trying to process reqTargetUri parameter: " + e, e);
                     }
-
                     httpServletRequest.setAttribute(ATTR_TARGET_URI, reqTargetUri);
-                    httpServletRequest.setAttribute(ATTR_TARGET_HOST, URIUtils.extractHost(targetUriObj));
+
                     service(httpServletRequest, (HttpServletResponse) response);
                     return;
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (RepositoryException e) {
-                e.printStackTrace();
+            } catch (JSONException | RepositoryException e) {
+                logger.error(e.getMessage(), e);
             }
         }
 
@@ -452,8 +409,6 @@ public class ProxyServlet extends AbstractServletFilter {
     }
 
     private @Nullable Map<String, String> extractSiteInfo(String uri) {
-//        String path = uri.split("\\?")[0];
-
         List<String> uriPart = Arrays.stream(uri.split("/")).collect(Collectors.toList());
         Map<String, String> ret = new HashMap<>();
 
@@ -486,22 +441,18 @@ public class ProxyServlet extends AbstractServletFilter {
     private @Nullable Map<String, String> getSiteInfo(ServletRequest request) {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
-//        Cookie cookieSiteKey = Arrays.stream(httpServletRequest.getCookies())                // convert list to stream
-//                .filter(cookie -> cookie.getName().equals(J_COOKIE_SITE_NAME))
-//                .collect(Collectors.toList()).get(0);
-
         String requestURI = httpServletRequest.getRequestURI();
         //bypass technical URL with action (.do) or with template like /cms/editframe/default/en/sites/headless-industrial.manageLanguages.html
         if (requestURI.endsWith(".do") || requestURI.matches(".*\\..*\\.html")) {
             return null;
         }
 
-        String referrer = httpServletRequest.getHeader("referer");
-
         if (requestURI.startsWith(J_EDITFRAME_URI) || requestURI.startsWith(J_PREVIEW_URI)) {
             //Preview and edit=true
             return extractSiteInfo(requestURI);
         }
+
+        String referrer = httpServletRequest.getHeader("referer");
 
         if (referrer != null && (referrer.contains(J_EDITFRAME_URI) || referrer.contains(J_PREVIEW_URI)) && isFrameworkURI(requestURI)) {
             return extractSiteInfo(referrer);
@@ -512,11 +463,9 @@ public class ProxyServlet extends AbstractServletFilter {
 
 
     private JCRSiteNode getSiteNode(String siteKey) throws RepositoryException {
-        List<JCRSiteNode> siteNodeList = jahiaSitesService.getSitesNodeList();
-        JCRSiteNode siteNode = jahiaSitesService.getSitesNodeList().stream()                // convert list to stream
+        return jahiaSitesService.getSitesNodeList().stream()
                 .filter(sNode -> sNode.getSiteKey().equals(siteKey))
                 .collect(Collectors.toList()).get(0);
-        return siteNode;
     }
 
     private String getTargetHost(JCRSiteNode siteNode) throws RepositoryException {
@@ -537,7 +486,6 @@ public class ProxyServlet extends AbstractServletFilter {
 
             if (cookieNextPreviewList.isEmpty())
                 return J_PROPS_HEADLESS_PREVIEW_PATH;
-//                return siteNode.getProperty(J_PROPS_HEADLESS_PREVIEW_PATH).getValue().getString();
         }
         return null;
     }
@@ -552,44 +500,12 @@ public class ProxyServlet extends AbstractServletFilter {
 
     private boolean isFrameworkURI(String requestURI) {
         return !this.proxyFrameworkURI.stream()
-                .filter(uri -> requestURI.startsWith(uri))
+                .filter(requestURI::startsWith)
                 .collect(Collectors.toList()).isEmpty();
     }
-//    private boolean isFrameworkURI(@NotNull JCRSiteNode siteNode, @NotNull String requestURI) throws RepositoryException {
-//        String [] uri = requestURI.split("/");
-//        List<String> headlessFrameworkURLs = Arrays.stream(
-//                        siteNode.getProperty(J_PROPS_HEADLESS_FRAMEWORK_URLS).getValues())
-//                .map(value -> value.toString() )
-//                .collect(Collectors.toList());
-//        return headlessFrameworkURLs.contains(uri[1]);
-//    }
-
-
-//    private URLResolver getUrlResolver(ServletRequest request){
-//        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-//        //Try to resolve Jahia URL
-//        URLResolver urlResolver = ((URLResolverFactory) SpringContextSingleton
-//                .getBean("urlResolverFactory"))
-//                .createURLResolver(
-//                        httpServletRequest.getPathInfo(),
-//                        httpServletRequest.getServerName(),
-//                        Constants.EDIT_WORKSPACE,
-//                        httpServletRequest
-//                );
-//        return urlResolver;
-//    }
-
 
     protected void service(HttpServletRequest servletRequest, HttpServletResponse servletResponse)
             throws ServletException, IOException {
-        //initialize request attributes from caches if unset by a subclass by this point
-        if (servletRequest.getAttribute(ATTR_TARGET_URI) == null) {
-            servletRequest.setAttribute(ATTR_TARGET_URI, targetUri);
-        }
-        if (servletRequest.getAttribute(ATTR_TARGET_HOST) == null) {
-            servletRequest.setAttribute(ATTR_TARGET_HOST, targetHost);
-        }
-
         // Make the Request
         //note: we won't transfer the protocol version because I'm not sure it would truly be compatible
         String method = servletRequest.getMethod();
@@ -672,8 +588,8 @@ public class ProxyServlet extends AbstractServletFilter {
     protected HttpResponse doExecute(HttpServletRequest servletRequest, HttpServletResponse servletResponse,
                                      HttpRequest proxyRequest) throws IOException {
         if (doLog) {
-//            log("proxy " + servletRequest.getMethod() + " uri: " + servletRequest.getRequestURI() + " -- " +
-//                    proxyRequest.getRequestLine().getUri());
+            logger.info("info " + servletRequest.getMethod() + " uri: " + servletRequest.getRequestURI() + " -- " +
+                    proxyRequest.getRequestLine().getUri());
         }
         return proxyClient.execute(getTargetHost(servletRequest), proxyRequest);
     }
@@ -703,7 +619,7 @@ public class ProxyServlet extends AbstractServletFilter {
         try {
             closeable.close();
         } catch (IOException e) {
-//            log(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -768,8 +684,6 @@ public class ProxyServlet extends AbstractServletFilter {
                 if (host.getPort() != -1)
                     headerValue += ":" + host.getPort();
             } else if (!doPreserveCookies && headerName.equalsIgnoreCase(org.apache.http.cookie.SM.COOKIE)) {
-
-//                headerValue = getRealCookie(headerValue);
                 String jContentEditCookie = (String) servletRequest.getAttribute(ATTR_HEADLESS_JCONTENT_COOKIE);
                 headerValue = new StringBuilder(getRealCookie(headerValue))
                         .append(";")
@@ -861,7 +775,6 @@ public class ProxyServlet extends AbstractServletFilter {
         // don't set cookie domain
         servletCookie.setSecure(cookie.getSecure());
         servletCookie.setVersion(cookie.getVersion());
-//        servletCookie.setHttpOnly(cookie.isHttpOnly());
         return servletCookie;
     }
 
@@ -919,7 +832,6 @@ public class ProxyServlet extends AbstractServletFilter {
      * The string prefixing rewritten cookies.
      */
     protected String getCookieNamePrefix(String name) {
-//        return "";//disable prefix, could check if cookie name equals a Next preview cookie or configure cookie name from Site...
         return "!Proxy!ServletName";
     }
 
@@ -1006,12 +918,10 @@ public class ProxyServlet extends AbstractServletFilter {
 
     private String getProxyPath(Map<String, String> siteInfo) {
         //Locale is managed by cookie
-//        return "/"+siteInfo.get("locale")+"/sites/"+siteInfo.get("siteKey")+siteInfo.get("pagePath");
         return "/sites/" + siteInfo.get("siteKey") + siteInfo.get("pagePath");
     }
 
     protected String rewriteQueryStringFromRequest(HttpServletRequest servletRequest, String queryString) {
-        String requestURI = servletRequest.getRequestURI();
         String previewUri = (String) servletRequest.getAttribute(ATTR_HEADLESS_PREVIEW_URI);
         String previewSecret = (String) servletRequest.getAttribute(ATTR_HEADLESS_PREVIEW_SECRET);
         Map<String, String> siteInfo = (Map<String, String>) servletRequest.getAttribute("siteInfo");
@@ -1022,12 +932,6 @@ public class ProxyServlet extends AbstractServletFilter {
         if (!rewritedQueryString.isEmpty())
             rewritedQueryString += "&";
 
-//        rewritedQueryString += "locale="+siteInfo.get("locale");
-
-//        if (requestURI.startsWith(J_EDITFRAME_URI)){
-//            rewritedQueryString += "&edit=true";
-//        }
-
         if (previewUri != null) {
             rewritedQueryString += "path=" + getProxyPath(siteInfo);
             if (previewSecret != null) {
@@ -1037,8 +941,6 @@ public class ProxyServlet extends AbstractServletFilter {
 
 
         return rewritedQueryString;
-
-//        return queryString;
     }
 
     /**
@@ -1096,13 +998,6 @@ public class ProxyServlet extends AbstractServletFilter {
             return curUrl.toString();
         }
         return theUrl;
-    }
-
-    /**
-     * The target URI as configured. Not null.
-     */
-    public String getTargetUri() {
-        return targetUri;
     }
 
     /**
