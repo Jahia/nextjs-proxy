@@ -16,10 +16,10 @@ the Nextjs framework. This module is used in conjunction of the [headless-templa
 <img src="/doc/images/setup/204_provision.png" width="800px"/>
 
 The Nextjs proxy module provides :
-- an [HTTP proxy][proxy] to redirect edit and preview rendering
-- a [mixin][definition] to configure paths and token to interact with your Nextjs app
-- a [mixin][definition] and its [contentList Initializer][initializer] to list and select headless templates for your pages
-
+- an [HTTP proxy][proxy] to redirect edit and preview rendering.
+- a [mixin][definition] to configure paths and token to interact with your Nextjs app.
+- a [mixin][definition] and its [contentList Initializer][initializer] to list and select headless templates for your pages.
+- an [api authorization configuration][authorization] to authorize graphQL call coming from the Nextjs server.
 
 [jahia-website]: https://www.jahia.com
 [vercel-website]: https://vercel.com
@@ -29,3 +29,4 @@ The Nextjs proxy module provides :
 [proxy]: ./src/main/java/org/jahia/se/modules/nextjs/ProxyServlet.java
 [initializer]: ./src/main/java/org/jahia/se/modules/nextjs/initializers/TemplateNameInitializer.java
 [definition]: ./src/main/resources/META-INF/definitions.cnd
+[authorization]: ./src/main/resources/META-INF/configurations/org.jahia.bundles.api.authorization-nextjsproxy.yaml
