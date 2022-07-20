@@ -11,7 +11,7 @@ To know more about the Jahia Nextjs initiative [read this dedicated page][initia
 ## Overview
 This module is one of the four components of the Jahia Nextjs initiative. It is a servlet proxy used by Jahia
 to render Nextjs application inside Jahia. That means you can edit, compose and preview website rendered with
-the Nextjs framework. This module is used in conjunction of the [headless-templatesSet] module.
+the Nextjs framework. This module is used in conjunction with the [headless-templatesSet] module.
 
 <img src="/doc/images/204_provision.png" width="800px"/>
 
