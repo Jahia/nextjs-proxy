@@ -13,7 +13,7 @@ This module is one of the four components of the Jahia Nextjs initiative. It is 
 to render Nextjs application inside Jahia. That means you can edit, compose and preview website render with
 the Nextjs framework. This module is used in conjunction of the [headless-templatesSet] module.
 
-<img src="/doc/images/setup/204_provision.png" width="800px"/>
+<img src="/doc/images/204_provision.png" width="800px"/>
 
 The Nextjs proxy module provides :
 - an [HTTP proxy][proxy] to redirect edit and preview rendering.
