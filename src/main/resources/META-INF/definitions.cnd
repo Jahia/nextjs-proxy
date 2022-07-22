@@ -6,6 +6,11 @@
  extends = jnt:page
  - j:templateNameNextjs (string,choicelist[nextjsTemplateNameInitializer]) nofulltext
 
+[jmix:nextjsContentView] mixin
+ extends = jnt:content
+ itemtype = layout
+ - j:viewNextjs (string,choicelist[nextjsContentViewInitializer]) nofulltext
+
  [jmix:nextjsSite] mixin
  extends = jnt:virtualsite
   - j:nextjsHost (string) nofulltext
