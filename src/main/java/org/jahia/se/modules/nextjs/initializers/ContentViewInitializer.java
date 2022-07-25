@@ -5,6 +5,7 @@ import org.jahia.se.modules.nextjs.services.Template;
 import org.jahia.se.modules.nextjs.services.TemplateService;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
+import org.jahia.services.content.nodetypes.ExtendedNodeType;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.services.content.nodetypes.initializers.ChoiceListValue;
 import org.jahia.services.content.nodetypes.initializers.ModuleChoiceListInitializer;
@@ -67,47 +68,41 @@ public class ContentViewInitializer implements ModuleChoiceListInitializer{
     @Override
     public List<ChoiceListValue> getChoiceListValues(ExtendedPropertyDefinition epd, String param, List<ChoiceListValue> values, Locale locale, Map<String, Object> context) {
         List<ChoiceListValue> choiceListValues = new ArrayList<>();
-        return choiceListValues;
-//        StringBuilder endpoint = new StringBuilder();
-//        URI uri;
-//        try {
-////            JCRNodeWrapper node = (JCRNodeWrapper)
-////                    ((context.get("contextParent") != null)
-////                            ? context.get("contextParent")
-////                            : context.get("contextNode"));
-//
-//            JCRNodeWrapper node = (JCRNodeWrapper) context.get("contextNode");
-//            JCRSiteNode siteNode = node.getResolveSite();
-//
-//            String endpointHost  = siteNode.getProperty("j:nextjsHost").getValue().toString();
-////            String endpointPath  = siteNode.getProperty("j:nextjsTemplateListPath").getValue().toString();
-//            String endpointSecret  = siteNode.getProperty("j:nextjsPreviewSecret").getValue().toString();
-//
-//            if(endpointHost == null || endpointHost.length() == 0){
-//                logger.error("*** Nextjs frontend server url not configured ***");
-//                return choiceListValues;
-//            }
-//
-////            if(endpointPath == null || endpointPath.length() == 0){
-////                logger.error("*** Nextjs Template list service API path not configured ***");
-////                return choiceListValues;
-////            }
-//
-//            endpoint.append(endpointHost).append(endpointPath);
-//            URIBuilder builder = new URIBuilder(endpoint.toString());
-//            builder.setParameter("secret", endpointSecret);
-//            builder.setParameter("nodetype", node.getPrimaryNodeTypeName());
-//
-//            uri = builder.build();
-//
-//        } catch (RepositoryException | URISyntaxException e){
-//            logger.error("Error happened", e);
-//            return choiceListValues;
-//        }
-//
-//        Template[] templates;
-//        templates = templateService.getTemplates(uri);
-//        return Stream.of(templates).map(template -> new ChoiceListValue(template.getDisplayName(), template.getName())).collect(Collectors.toList());
+
+        StringBuilder endpoint = new StringBuilder();
+        URI uri;
+        try {
+            JCRNodeWrapper node = (JCRNodeWrapper)
+                    ((context.get("contextParent") != null)
+                            ? context.get("contextParent")
+                            : context.get("contextNode"));
+
+            JCRSiteNode siteNode = node.getResolveSite();
+            ExtendedNodeType nodetype = (ExtendedNodeType) context.get("contextType");
+
+            String endpointHost  = siteNode.getProperty("j:nextjsHost").getValue().toString();
+            String endpointSecret  = siteNode.getProperty("j:nextjsPreviewSecret").getValue().toString();
+
+            if(endpointHost == null || endpointHost.length() == 0){
+                logger.error("*** Nextjs frontend server url not configured ***");
+                return choiceListValues;
+            }
+
+            endpoint.append(endpointHost).append(endpointPath);
+            URIBuilder builder = new URIBuilder(endpoint.toString());
+            builder.setParameter("secret", endpointSecret);
+            builder.setParameter("nodetype", nodetype.getName());
+
+            uri = builder.build();
+
+        } catch (RepositoryException | URISyntaxException e){
+            logger.error("Error happened", e);
+            return choiceListValues;
+        }
+
+        Template[] templates;
+        templates = templateService.getTemplates(uri);
+        return Stream.of(templates).map(template -> new ChoiceListValue(template.getDisplayName(), template.getName())).collect(Collectors.toList());
     }
 
 }
