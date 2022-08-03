@@ -5,10 +5,13 @@ import org.jahia.se.modules.nextjs.services.Template;
 import org.jahia.se.modules.nextjs.services.TemplateService;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
-import org.jahia.services.content.nodetypes.ExtendedNodeType;
+
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.services.content.nodetypes.initializers.ChoiceListValue;
 import org.jahia.services.content.nodetypes.initializers.ModuleChoiceListInitializer;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONArray;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -18,10 +21,7 @@ import org.slf4j.LoggerFactory;
 import javax.jcr.RepositoryException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -76,7 +76,12 @@ public class ContentReferenceViewInitializer implements ModuleChoiceListInitiali
             if(node == null)
                 return choiceListValues;
 
-            String referenceNodeType = node.getProperty("j:node").getNode().getPrimaryNodeType().getName();
+//            String referenceNodeType = node.getProperty("j:node").getNode().getPrimaryNodeType().getName();
+            JCRNodeWrapper referenceNode = node.getProperty("j:node").getContextualizedNode();
+            List<String> mixinTypes = Arrays.stream(referenceNode.getMixinNodeTypes())
+                    .map(extNodeType -> extNodeType.getName())
+                    .collect(Collectors.toList());
+
             JCRSiteNode siteNode = node.getResolveSite();
 
 
@@ -91,11 +96,14 @@ public class ContentReferenceViewInitializer implements ModuleChoiceListInitiali
             endpoint.append(endpointHost).append(endpointPath);
             URIBuilder builder = new URIBuilder(endpoint.toString());
             builder.setParameter("secret", endpointSecret);
-            builder.setParameter("nodetype", referenceNodeType);
+            JSONObject typesJSON = new JSONObject();
+            typesJSON.put("nodeType",  referenceNode.getPrimaryNodeTypeName());
+            typesJSON.put("mixinTypes",  new JSONArray(mixinTypes));
+            builder.setParameter("nodetypes", typesJSON.toString());
 
             uri = builder.build();
 
-        } catch (RepositoryException | URISyntaxException e){
+        } catch (JSONException | RepositoryException | URISyntaxException e){
             logger.error("Error happened", e);
             return choiceListValues;
         }

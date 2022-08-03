@@ -9,6 +9,9 @@ import org.jahia.services.content.nodetypes.ExtendedNodeType;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.services.content.nodetypes.initializers.ChoiceListValue;
 import org.jahia.services.content.nodetypes.initializers.ModuleChoiceListInitializer;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONArray;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -91,11 +94,15 @@ public class ContentViewInitializer implements ModuleChoiceListInitializer{
             endpoint.append(endpointHost).append(endpointPath);
             URIBuilder builder = new URIBuilder(endpoint.toString());
             builder.setParameter("secret", endpointSecret);
-            builder.setParameter("nodetype", nodetype.getName());
+
+            JSONObject typesJSON = new JSONObject();
+            typesJSON.put("nodeType",  nodetype.getName());
+            typesJSON.put("mixinTypes",  new JSONArray(nodetype.getMixinExtendNames()));
+            builder.setParameter("nodetypes", typesJSON.toString());
 
             uri = builder.build();
 
-        } catch (RepositoryException | URISyntaxException e){
+        } catch (JSONException | RepositoryException | URISyntaxException e){
             logger.error("Error happened", e);
             return choiceListValues;
         }
