@@ -1,0 +1,9 @@
+{
+  "name": "jnt:contentRetrieval",
+  "fields": [
+    {
+      "name": "j:subNodesView",
+      "removed": true
+    }
+  ]
+}

@@ -16,7 +16,11 @@
  itemtype = layout
  - j:referenceViewNextjs (string, choicelist[nextjsContentReferenceViewInitializer]) nofulltext
 
-//j:referenceViewNextjs
+[jmix:nextjsContentRetrieval] mixin
+ extends = jnt:contentRetrieval
+ itemtype = layout
+ - j:subNodesViewNextjs (string, choicelist[nextjsContentDependentViewInitializer,dependentProperties='j:type']) nofulltext
+
  [jmix:nextjsSite] mixin
  extends = jnt:virtualsite
   - j:nextjsHost (string) nofulltext
