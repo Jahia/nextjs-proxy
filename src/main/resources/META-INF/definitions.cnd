@@ -6,10 +6,25 @@
  extends = jnt:page
  - j:templateNameNextjs (string,choicelist[nextjsTemplateNameInitializer]) nofulltext
 
+[jmix:nextjsRenderable] mixin
+ extends = jnt:content, jnt:query
+ itemtype = layout
+ - j:viewNextjs (string,choicelist[nextjsContentViewInitializer]) nofulltext
+
+[jmix:nextjsRenderableReference] mixin
+ extends = jmix:nodeReference
+ itemtype = layout
+ - j:referenceViewNextjs (string, choicelist[nextjsContentReferenceViewInitializer]) nofulltext
+
+[jmix:nextjsContentRetrieval] mixin
+ extends = jnt:contentRetrieval
+ itemtype = layout
+ - j:subNodesViewNextjs (string, choicelist[nextjsContentDependentViewInitializer,dependentProperties='j:type']) nofulltext
+
  [jmix:nextjsSite] mixin
  extends = jnt:virtualsite
   - j:nextjsHost (string) nofulltext
-//  - j:nextjsPreviewURL (string) nofulltext
   - j:nextjsPreviewSecret (string) nofulltext
+//  - j:nextjsPreviewURL (string) nofulltext
 //  - j:nextjsTemplateListPath (string) nofulltext
 //  - j:nextjsFrameworkURLs (string) multiple nofulltext
