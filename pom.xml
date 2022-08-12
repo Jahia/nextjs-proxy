@@ -9,7 +9,7 @@
     </parent>
     <artifactId>nextjs-proxy</artifactId>
     <name>Jahia proxy for nextjs</name>
-    <version>0.0.2</version>
+    <version>0.0.3-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <description>This is the custom module (Jahia proxy for nextjs) for running on a Jahia server.</description>
 
@@ -17,7 +17,7 @@
         <connection>scm:git:git@github.com:Jahia/nextjs-proxy.git</connection>
         <developerConnection>scm:git:git@github.com:Jahia/nextjs-proxy.git</developerConnection>
         <url>https://github.com/Jahia/nextjs-proxy</url>
-      <tag>nextjs-proxy-0.0.2</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <properties>
