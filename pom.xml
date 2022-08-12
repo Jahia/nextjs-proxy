@@ -9,7 +9,7 @@
     </parent>
     <artifactId>nextjs-proxy</artifactId>
     <name>Jahia proxy for nextjs</name>
-    <version>0.0.2.alpha-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <description>This is the custom module (Jahia proxy for nextjs) for running on a Jahia server.</description>
 
