@@ -28,3 +28,9 @@
 //  - j:nextjsPreviewURL (string) nofulltext
 //  - j:nextjsTemplateListPath (string) nofulltext
 //  - j:nextjsFrameworkURLs (string) multiple nofulltext
+//,choicelist[nodes='$currentSite;jnt:page']
+
+[jnt:navMenuNext] > jnt:content, mix:title, jmix:siteComponent, jmix:navMenuComponent
+ - j:baseNode (weakreference) < jnt:page
+ - j:includeBaseNode (boolean) = false
+ - j:maxDepth (long) = 2
