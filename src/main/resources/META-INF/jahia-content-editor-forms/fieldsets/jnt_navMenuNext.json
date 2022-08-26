@@ -2,16 +2,34 @@
   "name": "jnt:navMenuNext",
   "fields": [
     {
-      "name": "j:baseNode",
-      "selectorType": "DropdownTree",
-      "selectorOptions":[
+      "name": "j:menuType",
+      "selectorType": "Choicelist",
+      "valueConstraints": [
         {
-          "name": "path",
-          "value" : "$currentSite"
+          "value": {
+            "type": "String",
+            "value": "base"
+          },
+          "displayValue": "Select a subpages tree from a start page",
+          "propertyList": [
+            {
+              "name": "addMixin",
+              "value": "jmix:navMenuNextBase"
+            }
+          ]
         },
         {
-          "name": "types",
-          "value" : "jnt:page,jnt:navMenuText"
+          "value": {
+            "type": "String",
+            "value": "select"
+          },
+          "displayValue": "Select a set of pages",
+          "propertyList": [
+            {
+              "name": "addMixin",
+              "value": "jmix:navMenuNextSelectPages"
+            }
+          ]
         }
       ]
     }

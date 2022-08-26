@@ -1,0 +1,19 @@
+{
+  "name": "jmix:navMenuNextSelectPages",
+  "fields": [
+    {
+      "name": "j:menuNodes",
+      "selectorType": "DropdownTree",
+      "selectorOptions":[
+        {
+          "name": "path",
+          "value" : "$currentSite"
+        },
+        {
+          "name": "types",
+          "value" : "jnt:page,jnt:navMenuText"
+        }
+      ]
+    }
+  ]
+}
