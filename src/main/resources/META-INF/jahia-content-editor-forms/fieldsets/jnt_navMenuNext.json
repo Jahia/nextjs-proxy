@@ -8,7 +8,7 @@
         {
           "value": {
             "type": "String",
-            "value": "base"
+            "value": "tree"
           },
           "displayValue": "Select a subpages tree from a start page",
           "propertyList": [
@@ -21,7 +21,7 @@
         {
           "value": {
             "type": "String",
-            "value": "select"
+            "value": "set"
           },
           "displayValue": "Select a set of pages",
           "propertyList": [
