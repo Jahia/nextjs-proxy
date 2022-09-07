@@ -19,7 +19,8 @@ the Nextjs framework. This module is used in conjunction with the [headless-temp
 The Nextjs proxy module provides :
 - an [HTTP proxy][proxy] to redirect edit and preview rendering.
 - a [mixin][definition] to configure paths and token to interact with your Nextjs app.
-- a [mixin][definition] and its [contentList Initializer][initializer] to list and select headless templates for your pages.
+- [mixins][definition] and their [contentList Initializers][initializer] to list and select headless page templates or content views.
+- some [json overrides][overrides] to disable form fields or to use specific selector types.
 - an [api authorization configuration][authorization] to authorize graphQL call coming from the Nextjs server.
 
 [jahia-website]: https://www.jahia.com
@@ -28,6 +29,7 @@ The Nextjs proxy module provides :
 [headless-templatesSet]: https://github.com/Jahia/headless-templatesSet
 
 [proxy]: ./src/main/java/org/jahia/se/modules/nextjs/ProxyServlet.java
-[initializer]: ./src/main/java/org/jahia/se/modules/nextjs/initializers/TemplateNameInitializer.java
+[initializer]: ./src/main/java/org/jahia/se/modules/nextjs/initializers
 [definition]: ./src/main/resources/META-INF/definitions.cnd
 [authorization]: ./src/main/resources/META-INF/configurations/org.jahia.bundles.api.authorization-nextjsproxy.yaml
+[overrides]: ./src/main/resources/META-INF/jahia-content-editor-forms/fieldsets
