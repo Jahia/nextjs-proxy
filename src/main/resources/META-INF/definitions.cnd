@@ -25,10 +25,6 @@
  extends = jnt:virtualsite
   - j:nextjsHost (string) nofulltext
   - j:nextjsPreviewSecret (string) nofulltext
-//  - j:nextjsPreviewURL (string) nofulltext
-//  - j:nextjsTemplateListPath (string) nofulltext
-//  - j:nextjsFrameworkURLs (string) multiple nofulltext
-//,choicelist[nodes='$currentSite;jnt:page']
 
 [jmix:navMenuNextBase] > jmix:dynamicFieldset mixin
  extends = jnt:navMenuNext
