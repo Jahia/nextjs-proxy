@@ -70,7 +70,7 @@
                 <configuration>
                     <instructions>
                         <_dsannotations>*</_dsannotations>
-                        <Jahia-Depends>default</Jahia-Depends>
+                        <Jahia-Depends>default,dropdown-tree-select</Jahia-Depends>
                     </instructions>
                 </configuration>
             </plugin>
