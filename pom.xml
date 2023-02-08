@@ -21,7 +21,7 @@
   </scm>
 
     <properties>
-        <jahia-depends>graphql-dxm-provider</jahia-depends>
+        <jahia-depends>default,graphql-dxm-provider</jahia-depends>
         <jahia-module-signature>MCwCFAyRQVoidJ5Ah41tNt1KA78dvhCcAhQDPeyG/ObiWpORCmiWcuRm1MVkLA==</jahia-module-signature>
     </properties>
 
