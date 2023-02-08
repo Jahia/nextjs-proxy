@@ -70,7 +70,7 @@
                 <configuration>
                     <instructions>
                         <_dsannotations>*</_dsannotations>
-                        <Jahia-Depends>default,dropdown-tree-select</Jahia-Depends>
+                        <Jahia-Depends>graphql-dxm-provider</Jahia-Depends>
                     </instructions>
                 </configuration>
             </plugin>
