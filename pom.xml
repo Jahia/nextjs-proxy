@@ -21,6 +21,7 @@
   </scm>
 
     <properties>
+        <jahia-depends>default,graphql-dxm-provider</jahia-depends>
         <jahia-module-signature>MCwCFAyRQVoidJ5Ah41tNt1KA78dvhCcAhQDPeyG/ObiWpORCmiWcuRm1MVkLA==</jahia-module-signature>
     </properties>
 
@@ -70,7 +71,6 @@
                 <configuration>
                     <instructions>
                         <_dsannotations>*</_dsannotations>
-                        <Jahia-Depends>default,dropdown-tree-select</Jahia-Depends>
                     </instructions>
                 </configuration>
             </plugin>
