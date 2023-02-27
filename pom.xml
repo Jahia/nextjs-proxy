@@ -5,7 +5,7 @@
     <parent>
         <artifactId>jahia-modules</artifactId>
         <groupId>org.jahia.modules</groupId>
-        <version>8.1.0.0</version>
+        <version>8.1.2.0</version>
     </parent>
     <artifactId>nextjs-proxy</artifactId>
     <name>Jahia proxy for nextjs</name>
